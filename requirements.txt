@@ -1,0 +1,7 @@
+# Veridian IT Assist - Assignment 2
+# Project type: Standalone HTML/CSS/JavaScript prototype
+
+# No external Python dependencies required.
+# Python standard library is used for the reference engine and tests.
+
+# Recommended Python version: 3.9+
