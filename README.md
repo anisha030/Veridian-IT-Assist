@@ -17,9 +17,9 @@ The agent classifies requests into four possible outcomes:
 - 🟠 **Route** — The request needs to be handled by IT or another responsible team.
 - 🔴 **Escalate** — The request requires immediate or specialized human intervention.
 
-The system also determines whether a **ticket is required**, preventing unnecessary tickets for requests that can be resolved directly or need clarification first.
+The system also determines whether a **ticket is required**, preventing unnecessary tickets for requests that can be resolved directly, need clarification, or have a separate escalation path.
 
-> **Design Principle:**  
+> **Design Principle:**
 > **Resolve what is safe. Route what requires authority. Escalate what is risky. Ask when information is missing.**
 
 ---
@@ -32,7 +32,7 @@ The system also determines whether a **ticket is required**, preventing unnecess
 - 📚 Displays the policy source used for each decision
 - 🎫 Creates tickets only when human/IT action is required
 - 💬 Handles incomplete and ambiguous requests
-- 🔐 Escalates security incidents to the Security team
+- 🔐 Directs security incidents to the Security team without creating an IT ticket
 - 📋 Includes a Ticket Queue
 - 📖 Includes a Knowledge Base section
 - 📝 Includes an Audit Trail
@@ -56,7 +56,7 @@ The system also determines whether a **ticket is required**, preventing unnecess
 - Python — decision-rule validation and testing
 - Browser Developer Tools — HTML/JavaScript testing and debugging
 
-> The final web prototype does **not require an external AI API or LLM** to run.  
+> The final web prototype does **not require an external AI API or LLM** to run.
 > The runtime decision engine uses deterministic, policy-grounded rules.
 
 ---
@@ -67,8 +67,8 @@ The system uses **only the information supplied in the Assignment 2 data pack**.
 
 ### Knowledge Base Policies
 
-| Policy | Area |
-|---|---|
+| **Policy** | **Area** |
+| ----------- | -------- |
 | **KB-01** | Password Reset |
 | **KB-02** | VPN Access |
 | **KB-03** | Laptop Replacement |
@@ -104,23 +104,18 @@ Request Analyzer
 Policy / Decision Engine
        │
        ▼
-┌────────────┬────────────┬──────────────┐
-│            │            │              │
-Resolve    Clarify      Route        Escalate
-│            │            │              │
-▼            ▼            ▼              ▼
-Direct     Ask for      Human/IT       Specialist
-Help       Information   Action         Action
-                         │              │
-                         └──────┬───────┘
-                                ▼
-                           Create Ticket
-                                │
-                                ▼
-                           Audit Trail
-
-```
- 
-## Author
-
-**Anisha Boken**
+┌────────────┬────────────┬──────────────┬──────────────────┐
+│            │            │              │                  │
+Resolve    Clarify      Route        Escalate          Security
+│            │            │              │                  │
+▼            ▼            ▼              ▼                  ▼
+Direct     Ask for      Human/IT       Specialist       Report to
+Help       Information   Action         Action           Security
+             │            │              │                  │
+             │            └──────┬───────┘                  │
+             │                   ▼                          │
+             │              Create Ticket                   │
+             │                   │                          │
+             └───────────────────┴──────────────┐           │
+                                                 ▼           │
+                                            Audit Trail ◄────┘
