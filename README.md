@@ -1,11 +1,8 @@
 # 🖥️ Veridian IT Assist — Internal IT Support Agent
 
-**Assignment 2 | Internal Service Agent (IT Support)**
+**Internal IT Support Agent**
 
-**Name:** Anisha Boken  
-**Roll No.:** 23CSU030  
-**Company:** Veridian Corp  
-**Assignment Week:** 21–25 September 2026
+An internal IT support agent designed to classify employee requests, provide policy-based guidance, and create or route tickets when required.
 
 ---
 
@@ -121,3 +118,9 @@ Help       Information   Action         Action
                                 │
                                 ▼
                            Audit Trail
+
+
+---
+## Author
+
+**Anisha Boken**
