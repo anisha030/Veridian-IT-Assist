@@ -2,7 +2,6 @@
 
 **Internal IT Support Agent**  
 **Developed by Anisha Boken**
-
 **Assignment 2**
 
 An internal IT support agent designed to classify employee requests, provide policy-based guidance, and create or route tickets when required.
