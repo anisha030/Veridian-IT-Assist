@@ -2,7 +2,10 @@
 
 **Internal IT Support Agent**  
 **Developed by Anisha Boken**
-**Assignment 2**
+
+**Built for:** Veridian Corp — Assignment 2  
+**User:** Veridian Corp Employees  
+**Scenario:** Week of 21–25 September 2026
 
 An internal IT support agent designed to classify employee requests, provide policy-based guidance, and create or route tickets when required.
 
