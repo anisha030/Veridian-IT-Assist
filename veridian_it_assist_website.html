@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Veridian IT Assist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    /* ---- Brand tokens (Veridian = deep green, grounded in the product name) ---- */
+    --brand-950: #06211A;
+    --brand-900: #0A2B21;
+    --brand-700: #0B6E4F;
+    --brand-600: #0E8560;
+    --brand-500: #159768;
+    --brand-100: #E3F3EA;
+    --brand-50:  #F1F9F4;
+
+    --canvas: #F5F7F6;
+    --surface: #FFFFFF;
+    --ink: #101828;
+    --ink-soft: #344054;
+    --slate: #667085;
+    --border: #E1E6E3;
+    --border-soft: #EBEEEC;
+
+    --amber-bg:#FEF6E7; --amber-text:#93590B; --amber-border:#F7E1AE; --amber-dot:#D08700;
+    --red-bg:#FDEDEC;  --red-text:#A32E23;  --red-border:#F5CFC8;  --red-dot:#C0392B;
+    --green-bg:#EAF7EF; --green-text:#0B6E4F; --green-border:#BFE6D2; --green-dot:#0B6E4F;
+    --blue-bg:#EAF1FB; --blue-text:#1D4E89; --blue-border:#C6DBF3; --blue-dot:#2563AC;
+
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --radius-sm: 7px;
+    --shadow-card: 0 1px 2px rgba(16,24,40,0.04);
+  }
+  * { box-sizing: border-box; }
+  html, body { height:100%; }
+  body {
+    margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--canvas); color: var(--ink); font-size:14.5px; line-height:1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, textarea, select { font-family: inherit; }
+  code, .mono { font-family: "SF Mono", "Roboto Mono", Menlo, Consolas, monospace; }
+
+  /* ---------- Top header ---------- */
+  .topbar {
+    height: 60px; background: var(--brand-950); color:#fff; display:flex; align-items:center;
+    padding: 0 22px; gap: 14px; position:sticky; top:0; z-index:30;
+  }
+  .brandmark { display:flex; align-items:center; gap:10px; }
+  .brandmark svg { flex-shrink:0; }
+  .brandmark .wordmark { font-size:17px; font-weight:800; letter-spacing:-0.3px; color:#fff; }
+  .brandmark .wordmark small { display:block; font-size:10.5px; font-weight:600; color:#9FD6BA; letter-spacing:.2px; margin-top:-2px;}
+  .topbar-spacer { flex:1; }
+  .env-pill {
+    font-size:12px; font-weight:600; color:#CFEAD9; background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.14); padding:5px 12px; border-radius:999px;
+  }
+  .user-chip {
+    display:flex; align-items:center; gap:8px; padding: 4px 10px 4px 4px; border-radius:999px;
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+  }
+  .user-chip .avatar {
+    width:26px; height:26px; border-radius:50%; background:var(--brand-500); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700;
+  }
+  .user-chip span { font-size:12.5px; font-weight:600; color:#E7F3EC; }
+
+  /* ---------- Layout ---------- */
+  .layout { display:flex; align-items:flex-start; }
+  .sidebar {
+    width: 232px; flex-shrink:0; background: var(--brand-900); min-height: calc(100vh - 60px);
+    padding: 20px 14px; position:sticky; top:60px;
+  }
+  .nav { display:flex; flex-direction:column; gap:2px; }
+  .nav button {
+    display:flex; align-items:center; gap:10px; text-align:left; padding:10px 12px; border-radius:9px;
+    border:none; background:transparent; font-size:14px; font-weight:600; cursor:pointer; color:#B9D6C8;
+    width:100%;
+  }
+  .nav button svg { flex-shrink:0; opacity:.85; }
+  .nav button:hover { background:rgba(255,255,255,0.05); color:#fff; }
+  .nav button.active { background: var(--brand-700); color:#fff; }
+  .nav button.active svg { opacity:1; }
+  .sidebar-divider { height:1px; background:rgba(255,255,255,0.08); margin:18px 4px; }
+  .sidebar-note { padding: 0 8px; }
+  .sidebar-note .t { font-size:11.5px; font-weight:700; color:#8FBBA3; text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px;}
+  .sidebar-note p { font-size:12px; color:#7FA894; margin:0 0 10px; line-height:1.5; }
+
+  .main { flex:1; padding: 30px 40px 60px; max-width: 1080px; }
+
+  /* ---------- Dashboard header ---------- */
+  .page-head { margin-bottom: 22px; }
+  .page-head .eyebrow { font-size:12.5px; font-weight:700; color:var(--brand-700); margin-bottom:4px; }
+  .page-head h1 { font-size:25px; font-weight:800; letter-spacing:-0.4px; margin:0 0 4px; color:var(--ink); }
+  .page-head p { margin:0; color:var(--slate); font-size:14px; max-width:640px; }
+
+  .stat-row { display:flex; gap:12px; margin: 18px 0 26px; flex-wrap:wrap; }
+  .stat-card {
+    flex:1; min-width:150px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+    padding:14px 16px; box-shadow: var(--shadow-card);
+  }
+  .stat-card .stat-label { font-size:12px; color:var(--slate); font-weight:600; display:flex; align-items:center; gap:6px;}
+  .stat-card .stat-value { font-size:22px; font-weight:800; margin-top:6px; color:var(--ink); }
+  .stat-card .stat-sub { font-size:11.5px; color:var(--slate); margin-top:2px; }
+
+  /* ---------- Panels ---------- */
+  .panel {
+    background: var(--surface); border:1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 22px 24px; box-shadow: var(--shadow-card); margin-bottom:20px;
+  }
+  .panel-title { font-size:15px; font-weight:700; color:var(--ink); margin:0 0 2px; display:flex; align-items:center; gap:8px;}
+  .panel-sub { font-size:12.5px; color:var(--slate); margin:0 0 16px; }
+
+  /* ---------- Sample request chips ---------- */
+  .chip-scroll { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:4px; }
+  .chip-scroll::-webkit-scrollbar { height:6px; }
+  .chip-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+  .req-chip {
+    flex-shrink:0; width: 250px; text-align:left; border:1px solid var(--border); background:var(--canvas);
+    border-radius:var(--radius-md); padding:10px 12px; cursor:pointer;
+  }
+  .req-chip:hover { border-color: var(--brand-500); background:var(--brand-50); }
+  .req-chip.active { border-color: var(--brand-700); background:var(--brand-100); }
+  .req-chip .rc-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;}
+  .req-chip .rc-id { font-size:11px; font-weight:700; color:var(--brand-700); }
+  .req-chip .rc-emp { font-size:11px; color:var(--slate); }
+  .req-chip .rc-text { font-size:12.5px; color:var(--ink-soft); line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+  /* ---------- Composer ---------- */
+  label.fieldLabel { font-weight:700; font-size:13px; display:block; margin-bottom:7px; margin-top:18px; color:var(--ink-soft); }
+  textarea, input[type=text] {
+    width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:var(--radius-md); font-size:14.5px;
+    font-family:inherit; background:#fff; color:var(--ink);
+  }
+  textarea:focus, input[type=text]:focus, .req-chip:focus-visible, button:focus-visible {
+    outline: 2px solid var(--brand-500); outline-offset:1px;
+  }
+  textarea { resize:vertical; }
+  .composer-foot { display:flex; align-items:center; justify-content:space-between; margin-top:14px; }
+  .composer-hint { font-size:12px; color:var(--slate); }
+  .btn-primary {
+    padding:11px 20px; border:none; border-radius:var(--radius-md);
+    background: var(--brand-700); color:#fff; font-size:14px; font-weight:700; cursor:pointer;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary:hover { background: var(--brand-600); }
+  .btn-secondary {
+    padding:9px 16px; border:1px solid var(--border); border-radius:var(--radius-md); background:#fff;
+    cursor:pointer; font-size:13px; font-weight:700; color:var(--ink-soft);
+  }
+  .btn-secondary:hover { background: var(--canvas); }
+  .btn-secondary:disabled { opacity:.6; cursor:default; }
+  .btn-ghost {
+    padding:8px 12px; border:none; background:none; cursor:pointer; font-size:12.5px; font-weight:700; color:var(--slate);
+  }
+  .btn-ghost:hover { color:var(--ink); }
+
+  /* ---------- Badges / risk ---------- */
+  .badge { display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:999px; font-size:12px; font-weight:700; border:1px solid; }
+  .badge .dot { width:6px; height:6px; border-radius:50%; }
+  .badge.red { background:var(--red-bg); color:var(--red-text); border-color:var(--red-border); }
+  .badge.red .dot { background:var(--red-dot); }
+  .badge.amber { background:var(--amber-bg); color:var(--amber-text); border-color:var(--amber-border); }
+  .badge.amber .dot { background:var(--amber-dot); }
+  .badge.green { background:var(--green-bg); color:var(--green-text); border-color:var(--green-border); }
+  .badge.green .dot { background:var(--green-dot); }
+  .badge.blue { background:var(--blue-bg); color:var(--blue-text); border-color:var(--blue-border); }
+  .badge.blue .dot { background:var(--blue-dot); }
+  .badge.neutral { background:#F2F4F3; color:var(--ink-soft); border-color:var(--border); }
+  .badge.neutral .dot { background:var(--slate); }
+
+  /* ---------- AI decision panel ---------- */
+  .decision-panel {
+    border-radius: var(--radius-lg); border:1px solid var(--border); background:var(--surface);
+    box-shadow: var(--shadow-card); margin-top:20px; overflow:hidden; border-left: 5px solid var(--slate);
+  }
+  .decision-panel.red { border-left-color: var(--red-dot); }
+  .decision-panel.amber { border-left-color: var(--amber-dot); }
+  .decision-panel.green { border-left-color: var(--green-dot); }
+  .decision-panel.blue { border-left-color: var(--blue-dot); }
+  .decision-head { padding: 20px 24px 16px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; border-bottom:1px solid var(--border-soft); }
+  .decision-head .dh-left .ai-tag { font-size:11.5px; font-weight:700; color:var(--brand-700); letter-spacing:.2px; margin-bottom:6px; display:flex; align-items:center; gap:6px;}
+  .decision-head .dh-left h3 { font-size:19px; margin:0; font-weight:800; letter-spacing:-0.2px; }
+  .decision-body { padding: 18px 24px 22px; }
+
+  .metrics-grid { display:flex; gap:10px; margin-bottom:18px; }
+  .metric { flex:1; padding:12px 14px; border:1px solid var(--border-soft); border-radius:var(--radius-md); background:var(--canvas); }
+  .metric .mlabel { font-size:11px; color:var(--slate); font-weight:700; }
+  .metric .mvalue { font-size:15px; font-weight:700; margin-top:3px; color:var(--ink); }
+
+  .block { margin-bottom:16px; }
+  .block .block-label { font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; display:flex; align-items:center; gap:6px;}
+  .reasoning-box {
+    background: var(--brand-50); border:1px solid var(--brand-100); color:var(--ink-soft); padding:13px 15px;
+    border-radius:var(--radius-md); font-size:14px; line-height:1.55;
+  }
+  .clarify-box {
+    background: var(--amber-bg); border:1px solid var(--amber-border); color:var(--amber-text); padding:13px 15px;
+    border-radius:var(--radius-md); font-size:14px; font-weight:600;
+  }
+  .next-action-box { display:flex; gap:10px; align-items:flex-start; font-size:14px; color:var(--ink-soft); }
+
+  /* ---------- Source / policy cards ---------- */
+  .source-grid { display:flex; flex-direction:column; gap:8px; }
+  .source-card { border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:#fff; }
+  .source-card summary {
+    list-style:none; cursor:pointer; padding:11px 14px; display:flex; align-items:center; gap:10px; font-size:13.5px;
+  }
+  .source-card summary::-webkit-details-marker { display:none; }
+  .source-card summary .sc-id {
+    font-size:11px; font-weight:800; color:var(--brand-700); background:var(--brand-100); padding:3px 8px; border-radius:6px; flex-shrink:0;
+  }
+  .source-card summary .sc-title { font-weight:700; color:var(--ink); flex:1; }
+  .source-card summary .chev { color:var(--slate); transition: transform .15s ease; }
+  .source-card[open] summary .chev { transform: rotate(90deg); }
+  .source-card .sc-content { padding: 0 14px 14px 14px; font-size:13.5px; color:var(--ink-soft); line-height:1.55; border-top:1px solid var(--border-soft); margin-top:2px; padding-top:10px;}
+  .no-source { font-size:13.5px; color:var(--slate); background:var(--canvas); border:1px dashed var(--border); border-radius:var(--radius-md); padding:12px 14px; }
+
+  /* ---------- Ticket stub ---------- */
+  .ticket-stub {
+    margin-top:6px; border:1.5px dashed var(--brand-500); border-radius:var(--radius-md); background: var(--brand-50);
+    padding: 16px 18px;
+  }
+  .ticket-stub .ts-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .ticket-stub .ts-head .ts-title { font-weight:700; font-size:13.5px; color:var(--brand-700); display:flex; align-items:center; gap:7px;}
+  .ticket-stub .ts-id { font-size:12.5px; font-weight:800; }
+  .ticket-fields { display:grid; grid-template-columns:1fr 1fr; gap:9px 20px; margin-bottom:14px; }
+  .ticket-fields .tf { font-size:13px; }
+  .ticket-fields .tf .k { color:var(--slate); font-size:11.5px; font-weight:600; }
+  .ticket-fields .tf .v { color:var(--ink); font-weight:600; margin-top:1px; }
+
+  hr.divider { border:none; border-top:1px solid var(--border); margin:24px 0; }
+
+  .principle-cols { display:flex; gap:12px; }
+  .principle { flex:1; padding:16px 18px; border-radius:var(--radius-md); font-size:13.5px; border:1px solid; }
+  .principle .p-head { display:flex; align-items:center; gap:8px; font-weight:800; margin-bottom:5px; font-size:13.5px; }
+  .principle.blue { background:var(--blue-bg); color:var(--blue-text); border-color:var(--blue-border);}
+  .principle.amber { background:var(--amber-bg); color:var(--amber-text); border-color:var(--amber-border);}
+  .principle.red { background:var(--red-bg); color:var(--red-text); border-color:var(--red-border);}
+
+  /* ---------- Tables ---------- */
+  .table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; box-shadow: var(--shadow-card); }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  thead th {
+    text-align:left; padding:12px 16px; background: var(--canvas); color:var(--slate); font-weight:700; font-size:11.5px;
+    border-bottom:1px solid var(--border);
+  }
+  tbody td { padding:12px 16px; border-bottom:1px solid var(--border-soft); color:var(--ink-soft); vertical-align:top; }
+  tbody tr:last-child td { border-bottom:none; }
+  tbody tr:hover td { background: var(--brand-50); }
+  td.id-cell, td.mono { font-family: "SF Mono", "Roboto Mono", Menlo, Consolas, monospace; font-size:12.5px; color:var(--ink); font-weight:700; }
+  .table-empty { padding: 40px 20px; text-align:center; color:var(--slate); }
+
+  /* ---------- Knowledge base grid ---------- */
+  .kb-grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+  .kb-card { border:1px solid var(--border); border-radius:var(--radius-md); background:#fff; padding:15px 16px; box-shadow: var(--shadow-card); }
+  .kb-card .kb-id { font-size:11px; font-weight:800; color:var(--brand-700); background:var(--brand-100); padding:3px 8px; border-radius:6px; display:inline-block; margin-bottom:8px; }
+  .kb-card h4 { margin:0 0 6px; font-size:14.5px; font-weight:700; }
+  .kb-card p { margin:0; font-size:13px; color:var(--ink-soft); line-height:1.55; }
+
+  .toast {
+    position:fixed; bottom:24px; right:24px; background: var(--brand-950); color:#fff; padding:13px 20px;
+    border-radius:var(--radius-md); font-size:13.5px; font-weight:600; opacity:0; transform:translateY(10px); transition:all .25s ease;
+    pointer-events:none; z-index:50; display:flex; align-items:center; gap:8px; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+  }
+  .toast.show { opacity:1; transform:translateY(0); }
+
+  @media (max-width: 900px) {
+    .layout { flex-direction:column; }
+    .sidebar { width:100%; min-height:auto; position:static; padding:12px 14px; }
+    .nav { flex-direction:row; overflow-x:auto; }
+    .nav button { white-space:nowrap; }
+    .sidebar-divider, .sidebar-note { display:none; }
+    .main { padding:22px 16px; }
+    .stat-row, .metrics-grid, .principle-cols, .ticket-fields, .kb-grid { flex-direction:column; grid-template-columns:1fr; }
+  }
+
+  /* ---------- Decision pipeline (4 outcomes) ---------- */
+  .pipeline { border:1px solid var(--border); border-radius:var(--radius-md); padding:14px; margin-bottom:16px; background:var(--brand-50); }
+  .pipe-steps { display:flex; align-items:stretch; gap:8px; flex-wrap:wrap; }
+  .pipe-step { flex:1; min-width:150px; background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:8px 10px; }
+  .pipe-step .ps-k { font-size:10.5px; font-weight:700; color:var(--slate); text-transform:uppercase; letter-spacing:.4px; }
+  .pipe-step .ps-v { font-size:13px; font-weight:650; color:var(--ink); margin-top:2px; }
+  .pipe-arrow { display:flex; align-items:center; color:var(--slate); }
+  .lane-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:12px; }
+  .lane { border:1px solid var(--border); border-radius:var(--radius-sm); padding:9px 8px; text-align:center; background:var(--surface); opacity:.45; }
+  .lane .lane-label { font-size:12.5px; font-weight:800; color:var(--slate); }
+  .lane .lane-sub { font-size:10.5px; font-weight:600; color:var(--slate); margin-top:1px; }
+  .lane.on { opacity:1; box-shadow:0 0 0 2px rgba(0,0,0,.03); }
+  .lane.on.green { background:var(--green-bg); border-color:var(--green-border); }
+  .lane.on.green .lane-label, .lane.on.green .lane-sub { color:var(--green-text); }
+  .lane.on.blue { background:var(--blue-bg); border-color:var(--blue-border); }
+  .lane.on.blue .lane-label, .lane.on.blue .lane-sub { color:var(--blue-text); }
+  .lane.on.amber { background:var(--amber-bg); border-color:var(--amber-border); }
+  .lane.on.amber .lane-label, .lane.on.amber .lane-sub { color:var(--amber-text); }
+  .lane.on.red { background:var(--red-bg); border-color:var(--red-border); }
+  .lane.on.red .lane-label, .lane.on.red .lane-sub { color:var(--red-text); }
+  .no-ticket-box { border:1px dashed var(--border); border-radius:var(--radius-sm); padding:11px 13px; font-size:13px; color:var(--ink-soft); background:var(--brand-50); }
+  .ticket-stub.conditional { border-style:dashed; background:var(--amber-bg); border-color:var(--amber-border); }
+  @media (max-width:760px) { .lane-row { grid-template-columns:repeat(2,1fr); } .pipe-arrow { display:none; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brandmark">
+    <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+      <path d="M16 2 L29 8 V17 C29 24.5 23.3 29.3 16 31 C8.7 29.3 3 24.5 3 17 V8 Z" fill="#0E8560"/>
+      <path d="M11 16.5 L14.5 20 L21.5 12" stroke="#06211A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+    <div class="wordmark">Veridian<small>IT Assist</small></div>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div class="env-pill">Prototype build · Assignment 2</div>
+  <div class="user-chip">
+    <div class="avatar">IT</div>
+    <span>Service Desk</span>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="nav" id="nav">
+      <button data-page="Agent" class="active">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L15 8 L21.5 9 L17 13.7 L18 20.5 L12 17.2 L6 20.5 L7 13.7 L2.5 9 L9 8 Z"/></svg>
+        Agent
+      </button>
+      <button data-page="Ticket Queue">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4Z"/><path d="M13 6v2M13 16v2M13 11v2"/></svg>
+        Ticket Queue
+      </button>
+      <button data-page="Knowledge Base">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+        Knowledge Base
+      </button>
+      <button data-page="Audit Trail">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1Z"/><rect x="5" y="6" width="14" height="15" rx="2"/><path d="M9 12h6M9 16h6"/></svg>
+        Audit Trail
+      </button>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-note">
+      <div class="t">Scope note</div>
+      <p>Business knowledge is restricted to the supplied policy pack (KB-01–10, AMP). The agent will not answer outside it.</p>
+    </div>
+  </div>
+
+  <div class="main">
+    <div id="page-Agent"></div>
+    <div id="page-TicketQueue" style="display:none;"></div>
+    <div id="page-KnowledgeBase" style="display:none;"></div>
+    <div id="page-AuditTrail" style="display:none;"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- Supplied data ---------------- */
+const policies = [
+  {"id":"KB-01","title":"Password Reset","content":"Employees can reset their own password via the self-service portal at any time. If locked out after 5 failed attempts, contact IT to unlock the account manually. No approval required."},
+  {"id":"KB-02","title":"VPN Access","content":"VPN access is granted automatically to all full-time employees. Contractors require manager approval submitted via the access request form. VPN credentials expire every 90 days and must be renewed by the employee."},
+  {"id":"KB-03","title":"Laptop Replacement","content":"Laptops are eligible for replacement after 3 years of service, or earlier in case of verified hardware failure. Requests must be raised at least 2 weeks in advance of intended replacement."},
+  {"id":"KB-04","title":"Software Installation","content":"Standard software (listed in the approved catalog) can be self-installed. Non-catalog software requires IT Security review, which takes 3–5 business days."},
+  {"id":"KB-05","title":"Printer Troubleshooting","content":"For printer issues, first check the printer queue and restart the print spooler. If the issue persists after restart, log a ticket with the printer’s asset tag."},
+  {"id":"KB-06","title":"Email Mailbox Quota","content":"Default mailbox quota is 25GB. Employees nearing quota should archive old mail. Quota increases beyond 25GB require manager approval and are capped at 50GB."},
+  {"id":"KB-07","title":"Guest Wi-Fi Access","content":"Guest Wi-Fi credentials are valid for 24 hours and can be generated by any employee from the front-desk kiosk. No IT ticket required."},
+  {"id":"KB-08","title":"Expense Software Access","content":"Access to the expense management tool is granted by Finance, not IT. IT can only assist with login/technical issues once an account already exists."},
+  {"id":"KB-09","title":"Security Incident Reporting","content":"Any suspected phishing email, malware, or unauthorized access attempt must be reported to security@veridian-corp.example immediately and should not be forwarded to other employees."},
+  {"id":"KB-10","title":"Work-From-Home Equipment","content":"Employees working remotely more than 3 days/week are eligible for a one-time home office equipment allowance (chair, monitor). Requires manager sign-off and Finance processing — IT only handles the equipment shipping request once approved."},
+  {"id":"AMP","title":"Asset Management Policy","content":"All company-issued hardware, including laptops and monitors, follows a standard 4-year refresh cycle from date of issue. Early replacement outside this cycle requires Finance sign-off in addition to IT approval."}
+];
+
+const requests = [
+  {"id":"REQ-01","employee":"Aditi Sharma","email":"aditi.sharma@veridian-corp.example","date":"Mon 21 Sep","request":"My laptop won’t turn on at all, it’s completely dead, had it about 3.5 years now.","initial":"Not started"},
+  {"id":"REQ-02","employee":"Vikram Chawla","email":"vikram.chawla@veridian-corp.example","date":"Mon 21 Sep","request":"Can I get Wi-Fi access for a guest visiting our office tomorrow?","initial":"Not started"},
+  {"id":"REQ-03","employee":"Karan Mehta","email":"karan.mehta@veridian-corp.example","date":"Mon 21 Sep","request":"I’m locked out of my account, tried my password 6 times.","initial":"In progress — reset queued"},
+  {"id":"REQ-04","employee":"Ritu Bhatia","email":"ritu.bhatia@veridian-corp.example","date":"Tue 22 Sep","request":"Need approval to install a data-analysis tool that’s not in the software catalog.","initial":"Waiting on Security review"},
+  {"id":"REQ-05","employee":"Sanjay Oberoi","email":"sanjay.oberoi@veridian-corp.example","date":"Tue 22 Sep","request":"My VPN stopped working this morning, says credentials expired.","initial":"Not started"},
+  {"id":"REQ-06","employee":"Meera Iyer","email":"meera.iyer@veridian-corp.example","date":"Tue 22 Sep","request":"Printer on the 3rd floor keeps showing “paper jam” even though there’s no jam.","initial":"Investigating — technician assigned"},
+  {"id":"REQ-07","employee":"Farhan Ali","email":"farhan.ali@veridian-corp.example","date":"Wed 23 Sep","request":"I’ve started working from home 4 days a week, how do I get a monitor?","initial":"Not started"},
+  {"id":"REQ-08","employee":"Ananya Reddy","email":"ananya.reddy@veridian-corp.example","date":"Wed 23 Sep","request":"I think I got a phishing email asking for my login — forwarding it to a few teammates to check.","initial":"Escalated to Security (auto-flagged)"},
+  {"id":"REQ-09","employee":"Rohit Desai","email":"rohit.desai@veridian-corp.example","date":"Wed 23 Sep","request":"My mailbox is full and I can’t send emails.","initial":"Not started"},
+  {"id":"REQ-10","employee":"Kavya Pillai","email":"kavya.pillai@veridian-corp.example","date":"Wed 23 Sep","request":"Can someone give me admin access to the finance reporting server? Need it urgently for month-end.","initial":"Not started"},
+  {"id":"REQ-11","employee":"Nikhil Bansal","email":"nikhil.bansal@veridian-corp.example","date":"Thu 24 Sep","request":"New contractor joining my team next week, they’ll need VPN access.","initial":"Not started"},
+  {"id":"REQ-12","employee":"Sneha Kulkarni","email":"sneha.kulkarni@veridian-corp.example","date":"Thu 24 Sep","request":"I can’t log into the expense tool, keeps saying invalid credentials.","initial":"Waiting on employee response (asked for a screenshot, no reply yet)"},
+  {"id":"REQ-13","employee":"Aman Gupta","email":"aman.gupta@veridian-corp.example","date":"Thu 24 Sep","request":"Laptop screen is flickering on and off, had it 2 years, might just need a fix not a replacement.","initial":"Not started"},
+  {"id":"REQ-14","employee":"Tanya Chopra","email":"tanya.chopra@veridian-corp.example","date":"Fri 25 Sep","request":"Requesting approval to install a browser extension for productivity tracking.","initial":"Not started"},
+  {"id":"REQ-15","employee":"Rahul Menon","email":"rahul.menon@veridian-corp.example","date":"Fri 25 Sep","request":"hey can you help, its not working","initial":"Not started"}
+];
+
+const tickets = [
+  {"id":"TK-1042","employee":"R. Verma","issue":"VPN credential expired","status":"Resolved (closed)"},
+  {"id":"TK-1043","employee":"S. Iyer","issue":"Laptop replacement (3.2 yrs old)","status":"Approved — pending fulfillment (active)"},
+  {"id":"TK-1044","employee":"A. Khan","issue":"Non-catalog software request","status":"Pending Security review (active)"},
+  {"id":"TK-1045","employee":"P. Joshi","issue":"Mailbox quota increase","status":"Approved at 35GB (closed)"},
+  {"id":"TK-1046","employee":"M. Das","issue":"Printer paper jam, floor 2","status":"Resolved (closed)"},
+  {"id":"TK-1047","employee":"K. Singh","issue":"Home office equipment request","status":"Pending Finance (active)"},
+  {"id":"TK-1048","employee":"T. Rao","issue":"Phishing email reported","status":"Escalated to Security — under investigation (active)"},
+  {"id":"TK-1049","employee":"V. Nambiar","issue":"Password reset","status":"Resolved (closed)"},
+  {"id":"TK-1050","employee":"J. Fernandes","issue":"Admin access request","status":"Rejected — no business justification provided (closed)"},
+  {"id":"TK-1051","employee":"L. Menon","issue":"Guest Wi-Fi issued","status":"Resolved (closed)"}
+];
+
+/* ---------------- Agent decision engine ----------------
+   Pipeline: Understand intent → Find relevant policy → Authority/risk check
+             → one of four outcomes: RESOLVE | CLARIFY | ROUTE | ESCALATE
+   Only ROUTE and ESCALATE produce a ticket. RESOLVE and CLARIFY never do.
+--------------------------------------------------------- */
+const OUTCOMES = {
+  RESOLVE: {
+    key: "RESOLVE", label: "Resolve", tone: "green", ticket: false,
+    blurb: "Answered directly from documented policy. No IT involvement, no ticket."
+  },
+  CLARIFY: {
+    key: "CLARIFY", label: "Clarify", tone: "blue", ticket: false,
+    blurb: "Intent or eligibility can't be established yet. Ask first — no ticket."
+  },
+  ROUTE: {
+    key: "ROUTE", label: "Route", tone: "amber", ticket: true,
+    blurb: "A human owner has to act. A structured ticket is raised for them."
+  },
+  ESCALATE: {
+    key: "ESCALATE", label: "Escalate", tone: "red", ticket: true,
+    blurb: "Risky, privileged or security-sensitive. Goes to a human immediately."
+  }
+};
+
+function decide(cfg) {
+  const o = OUTCOMES[cfg.outcome];
+  return {
+    outcome: o.key,
+    outcome_label: o.label,
+    outcome_blurb: o.blurb,
+    tone: o.tone,
+    ticket_required: o.ticket,
+    intent: cfg.intent,
+    decision: cfg.decision,
+    risk: cfg.risk,
+    sources: cfg.sources || [],
+    policy_finding: cfg.policy_finding,
+    authority_check: cfg.authority_check,
+    reason: cfg.reason,
+    next_action: cfg.next_action,
+    status: cfg.status,
+    owner: cfg.owner || (o.ticket ? "IT Service Desk" : "No owner — handled without a ticket"),
+    clarification: cfg.clarification || null,
+    // "Depends" cases: no ticket now, but a defined trigger that would create one.
+    escalation_path: cfg.escalation_path || null
+  };
+}
+
+function analyze(text) {
+  const t = (text || "").toLowerCase().trim();
+  const has = (...ks) => ks.some(k => t.includes(k));
+
+  /* ---- Empty input ---- */
+  if (!t) {
+    return decide({
+      outcome: "CLARIFY", intent: "Not stated", decision: "Ask what the issue is",
+      risk: "Medium", sources: [],
+      policy_finding: "No policy can be looked up until an issue is described.",
+      authority_check: "Nothing to authorize — there is no request yet.",
+      reason: "No employee request was provided, so there is no intent to classify.",
+      next_action: "Ask the employee what system, device or service is affected.",
+      status: "Awaiting information",
+      clarification: "What isn't working — your laptop, VPN, printer, email, software, or something else?"
+    });
+  }
+
+  /* ---- Security incidents: always escalate, never self-serve ---- */
+  if (has("phishing", "malware", "unauthorized access", "suspicious email", "suspicious link", "hacked")) {
+    return decide({
+      outcome: "ESCALATE", intent: "Security incident", decision: "Report to Security immediately",
+      risk: "High", sources: ["KB-09"], owner: "Security team (security@veridian-corp.example)",
+      policy_finding: "KB-09 — suspected phishing, malware or unauthorized access must be reported to Security immediately and must not be forwarded to other employees.",
+      authority_check: "Not self-service and not an IT Service Desk decision. Security owns the response, and delay or forwarding increases the blast radius.",
+      reason: "The request describes a suspected security event. Policy requires immediate Security involvement rather than agent resolution.",
+      next_action: "Report to security@veridian-corp.example now. Do not forward the message to colleagues — forwarding spreads the risk. Preserve the original email for investigation.",
+      status: "Escalated to Security"
+    });
+  }
+
+  /* ---- Password: self-service reset vs lockout needing IT unlock ---- */
+  if (has("password", "log in", "login", "locked", "lockout") && !has("expense", "vpn")) {
+    const m = t.match(/(\d+)\s*(?:times|attempts|tries)/);
+    const attempts = m ? parseInt(m[1], 10) : null;
+    const lockedOut = has("locked out", "locked", "lockout") || (attempts !== null && attempts >= 5);
+
+    if (lockedOut) {
+      return decide({
+        outcome: "ROUTE", intent: "Account lockout — manual unlock", decision: "Route to IT for account unlock",
+        risk: "Low", sources: ["KB-01"], owner: "IT Service Desk",
+        policy_finding: `KB-01 — self-service reset is available at any time, but after 5 failed attempts the account locks and IT must unlock it manually.${attempts !== null ? ` The employee reports ${attempts} failed attempts.` : ""}`,
+        authority_check: "No approval required, but the unlock action itself is privileged — the employee cannot perform it. Verify identity before unlocking.",
+        reason: "The account is locked, so the self-service portal will not help. KB-01 puts the manual unlock with IT, which makes this a genuine ticket rather than a self-service answer.",
+        next_action: "Verify the employee's identity, unlock the account, then have them set a new password via the self-service portal.",
+        status: "Ready for IT unlock"
+      });
+    }
+    return decide({
+      outcome: "RESOLVE", intent: "Password reset", decision: "Self-service reset — no ticket",
+      risk: "Low", sources: ["KB-01"],
+      policy_finding: "KB-01 — employees can reset their own password through the self-service portal at any time. No approval required.",
+      authority_check: "Fully within the employee's own authority. No IT action needed.",
+      reason: "The employee is not locked out, so the documented self-service path resolves this without IT involvement.",
+      next_action: "Reset your password at the self-service portal. If you fail 5 attempts the account will lock — come back to us then and we'll unlock it manually.",
+      status: "Resolved — self-service",
+      escalation_path: { trigger: "Account locks after 5 failed attempts", becomes: "Route to IT for manual unlock" }
+    });
+  }
+
+  /* ---- Guest Wi-Fi: explicitly self-service, no ticket ---- */
+  if (has("guest") && has("wi-fi", "wifi", "wi fi", "network access")) {
+    return decide({
+      outcome: "RESOLVE", intent: "Guest Wi-Fi access", decision: "Self-service instructions — no ticket",
+      risk: "Low", sources: ["KB-07"],
+      policy_finding: "KB-07 — guest Wi-Fi credentials are valid 24 hours and can be generated by any employee at the front-desk kiosk. No IT ticket required.",
+      authority_check: "Any employee already holds the authority to do this. No IT involvement at all.",
+      reason: "Policy names this as self-service and explicitly says no ticket is required, so creating one would add queue noise with no work behind it.",
+      next_action: "On the day of the visit, generate the credentials yourself at the front-desk kiosk. They're valid for 24 hours, so generate them on the day rather than in advance.",
+      status: "Resolved — self-service"
+    });
+  }
+
+  /* ---- VPN ---- */
+  if (has("vpn")) {
+    if (has("contractor", "vendor", "consultant")) {
+      return decide({
+        outcome: "ROUTE", intent: "Contractor VPN access", decision: "Route — manager approval then IT provisioning",
+        risk: "Medium", sources: ["KB-02"], owner: "Manager (approval) → IT Service Desk (provisioning)",
+        policy_finding: "KB-02 — VPN is automatic for full-time employees, but contractors require manager approval submitted via the access request form.",
+        authority_check: "The agent cannot approve this. Manager approval is a precondition, and IT provisioning is a privileged action, so both stages need a tracked record.",
+        reason: "Granting an external party network access is an authorization decision, not a support answer. The ticket tracks approval and provisioning together.",
+        next_action: "Submit the access request form for manager approval. Once approved, IT provisions the account — note that VPN credentials expire every 90 days and the contractor renews them.",
+        status: "Pending manager approval"
+      });
+    }
+    if (has("full-time", "full time", "fulltime", "permanent employee") && has("new", "need", "needs", "access", "set up", "setup", "joining", "onboard")) {
+      return decide({
+        outcome: "RESOLVE", intent: "Full-time employee VPN access", decision: "Automatic — no ticket",
+        risk: "Low", sources: ["KB-02"],
+        policy_finding: "KB-02 — VPN access is granted automatically to all full-time employees. No approval or ticket required.",
+        authority_check: "Full-time status alone satisfies policy. There is no approval gate to clear.",
+        reason: "The employee is confirmed full-time, and policy grants VPN automatically in that case — nothing for IT or a manager to approve.",
+        next_action: "VPN access is provisioned automatically for the full-time employee. Credentials expire every 90 days and the employee renews them at that point.",
+        status: "Resolved — automatic"
+      });
+    }
+    if (has("expired", "90 days", "renew")) {
+      return decide({
+        outcome: "RESOLVE", intent: "VPN credential renewal", decision: "Self-service renewal — no ticket",
+        risk: "Low", sources: ["KB-02"],
+        policy_finding: "KB-02 — VPN credentials expire every 90 days and must be renewed by the employee.",
+        authority_check: "Renewal sits with the employee by policy. No approval and no IT action required.",
+        reason: "This is expected expiry behaviour rather than a fault, and the policy assigns the renewal to the employee.",
+        next_action: "Renew your VPN credentials through the standard renewal flow. They'll expire again in 90 days.",
+        status: "Resolved — self-service",
+        escalation_path: { trigger: "Renewal itself fails or is rejected", becomes: "Route to IT Service Desk" }
+      });
+    }
+    return decide({
+      outcome: "CLARIFY", intent: "VPN access (category unclear)", decision: "Ask employment category first",
+      risk: "Medium", sources: ["KB-02"],
+      policy_finding: "KB-02 — handling splits by employment type: automatic for full-time employees, manager approval for contractors.",
+      authority_check: "Cannot run the authority check without knowing which category applies. Guessing could grant access that needed approval.",
+      reason: "The two policy branches lead to different outcomes, and the request doesn't say which applies. No ticket until it's clear.",
+      next_action: "Confirm the employment category before deciding the path.",
+      status: "Awaiting information",
+      clarification: "Is this for a full-time employee or a contractor? Full-time VPN is automatic; contractors need manager approval first."
+    });
+  }
+
+  /* ---- Software installation ---- */
+  if (has("software", "install", "extension", "application", "app ")) {
+    if (has("not in", "non-catalog", "not in the catalog", "isn't in", "outside the catalog")) {
+      return decide({
+        outcome: "ESCALATE", intent: "Non-catalog software request", decision: "Escalate to IT Security review",
+        risk: "Medium", sources: ["KB-04"], owner: "IT Security",
+        policy_finding: "KB-04 — standard catalog software is self-installable; non-catalog software requires IT Security review, which takes 3–5 business days.",
+        authority_check: "Neither the agent nor the employee can authorize unreviewed software. Security owns this gate.",
+        reason: "The employee has identified the tool as outside the catalog, which triggers the mandatory Security review path.",
+        next_action: "Raise for IT Security review with the tool name, vendor, version and business purpose. Expect 3–5 business days; don't install it in the meantime.",
+        status: "Pending Security review"
+      });
+    }
+    return decide({
+      outcome: "CLARIFY", intent: "Software installation", decision: "Check catalog status first",
+      risk: "Medium", sources: ["KB-04"],
+      policy_finding: "KB-04 — catalog software is self-install; anything outside the catalog needs IT Security review.",
+      authority_check: "Authority depends entirely on catalog status, which the request doesn't establish.",
+      reason: "If it's in the catalog this resolves with no ticket at all; if it isn't, it needs Security. Asking costs one message and avoids a wrong path.",
+      next_action: "Confirm catalog status, then either point to self-install or raise a Security review.",
+      status: "Awaiting information",
+      clarification: "What's the exact name of the tool or extension? If it's in the approved catalog you can install it yourself; if not, IT Security review takes 3–5 business days."
+    });
+  }
+
+  /* ---- Laptop / hardware ---- */
+  if (has("laptop", "monitor", "screen", "hardware", "keyboard")) {
+    if (has("home", "work from home", "wfh", "remotely", "remote")) {
+      return wfhEquipment(t, has);
+    }
+    if (has("flicker", "flickering")) {
+      return decide({
+        outcome: "ROUTE", intent: "Laptop hardware fault (repair assessment)", decision: "Route for hardware assessment",
+        risk: "Medium", sources: ["KB-03", "AMP"], owner: "IT hardware support",
+        policy_finding: "KB-03 — replacement at 3 years of service, or earlier for verified hardware failure. AMP sets a 4-year refresh cycle, with early replacement needing Finance sign-off on top of IT approval.",
+        authority_check: "At 2 years the device is inside both the KB-03 and AMP windows, so replacement isn't authorized here. Repair assessment is the appropriate IT action.",
+        reason: "There's a real fault needing a technician, but nothing in the supplied policy lets the agent authorize replacement at this age. The ticket is for assessment, not a swap.",
+        next_action: "Log a hardware case with the asset tag for diagnosis. If diagnosis shows verified failure, the replacement route can be reconsidered under KB-03 with the AMP approvals.",
+        status: "Pending hardware assessment"
+      });
+    }
+    if (has("dead", "won't turn", "won’t turn", "wont turn", "not turning on", "completely dead", "won't power", "broken")) {
+      const m = t.match(/(\d+(?:\.\d+)?)\s*(?:years|yrs|year)/);
+      const age = m ? parseFloat(m[1]) : null;
+      return decide({
+        outcome: "ROUTE", intent: "Laptop hardware failure / replacement review", decision: "Route for verification and replacement review",
+        risk: "Medium", sources: ["KB-03", "AMP"], owner: "IT hardware support → Finance (if early replacement)",
+        policy_finding: `KB-03 — replacement after 3 years of service, or earlier for verified hardware failure. AMP — standard refresh cycle is 4 years; early replacement needs Finance sign-off in addition to IT approval.${age !== null ? ` The device is reported at ${age} years.` : ""}`,
+        authority_check: `${age !== null && age >= 3 && age < 4 ? "At " + age + " years the device is past the KB-03 3-year threshold but still inside the AMP 4-year cycle — the two policies point different ways, so this needs human judgement plus Finance sign-off." : "Replacement eligibility depends on verified failure and the refresh cycle, which a human must confirm."} The failure itself is reported, not verified.`,
+        reason: "A dead device is genuine IT work, and the replacement question sits across two policies that don't resolve cleanly on their own. That's a ticket with a decision attached, not an automatic swap.",
+        next_action: "Verify the hardware failure, arrange a loaner so the employee isn't blocked, and route the replacement decision for IT approval plus Finance sign-off if it falls inside the 4-year cycle.",
+        status: "Pending hardware verification"
+      });
+    }
+    return decide({
+      outcome: "CLARIFY", intent: "Laptop issue (undefined)", decision: "Ask for symptom and device age",
+      risk: "Medium", sources: ["KB-03", "AMP"],
+      policy_finding: "KB-03 and AMP both key off device age and whether there's a verified hardware failure.",
+      authority_check: "Neither the fault nor the age is known, so eligibility can't be assessed.",
+      reason: "Repair, replacement and refresh are three different paths, and the request doesn't contain what's needed to pick one.",
+      next_action: "Get the symptom and the device age, then re-assess.",
+      status: "Awaiting information",
+      clarification: "What exactly is the laptop doing, and roughly how old is it? That decides whether this is a repair, a warranty case or a replacement."
+    });
+  }
+
+  /* ---- Printer: troubleshoot first, ticket only if that fails ---- */
+  if (has("printer", "printing", "print ")) {
+    return decide({
+      outcome: "RESOLVE", intent: "Printer troubleshooting", decision: "Guided troubleshooting first — no ticket yet",
+      risk: "Low", sources: ["KB-05"],
+      policy_finding: "KB-05 — check the print queue and restart the print spooler first. Only if the issue persists should a ticket be logged, with the printer's asset tag.",
+      authority_check: "The first-line steps are the employee's to run. Policy makes the ticket conditional on those steps failing.",
+      reason: "Most of these clear on the documented first-line steps, and policy deliberately puts the ticket after them rather than before.",
+      next_action: "Clear the print queue of stuck jobs, restart the print spooler, then try a test page. A phantom paper jam often clears by opening and closing every tray and reseating the paper.",
+      status: "Troubleshooting in progress",
+      escalation_path: { trigger: "Issue persists after queue clear and spooler restart", becomes: "Route to IT with the printer's asset tag" }
+    });
+  }
+
+  /* ---- Mailbox quota ---- */
+  if (has("mailbox", "quota") || (has("mail", "email") && has("full", "can't send", "cant send"))) {
+    if (has("increase", "more space", "50gb", "bigger quota")) {
+      return decide({
+        outcome: "ROUTE", intent: "Mailbox quota increase", decision: "Route — manager approval required",
+        risk: "Low", sources: ["KB-06"], owner: "Manager (approval) → IT Service Desk",
+        policy_finding: "KB-06 — default quota is 25GB; increases beyond that require manager approval and are capped at 50GB.",
+        authority_check: "An increase is beyond the employee's own authority and needs a manager on record.",
+        reason: "The employee is asking for more than the default, which policy gates behind manager approval.",
+        next_action: "Obtain manager approval, then IT applies the increase up to the 50GB cap.",
+        status: "Pending manager approval"
+      });
+    }
+    return decide({
+      outcome: "RESOLVE", intent: "Mailbox at quota", decision: "Self-service archiving — no ticket",
+      risk: "Low", sources: ["KB-06"],
+      policy_finding: "KB-06 — default quota is 25GB and employees nearing it should archive old mail. Increases need manager approval and cap at 50GB.",
+      authority_check: "Archiving is the employee's own action. No IT action needed unless an increase is requested.",
+      reason: "Policy puts archiving first, and it usually restores sending immediately without any IT work.",
+      next_action: "Archive or delete large and old mail — sort by size and start with attachments, then empty Deleted Items so the space is actually released.",
+      status: "Resolved — self-service",
+      escalation_path: { trigger: "Archiving isn't enough and more than 25GB is genuinely needed", becomes: "Route for manager approval, capped at 50GB" }
+    });
+  }
+
+  /* ---- Work-from-home equipment ---- */
+  if (has("work from home", "wfh", "home office", "working from home") || (has("home") && has("equipment", "chair", "monitor"))) {
+    return wfhEquipment(t, has);
+  }
+
+  /* ---- Expense tool: Finance owns access, IT owns technical login faults ---- */
+  if (has("expense")) {
+    if (has("invalid credentials", "can't log in", "cant log in", "can't login", "cannot log in", "login fails", "error")) {
+      return decide({
+        outcome: "ROUTE", intent: "Expense tool — technical login fault", decision: "Route to IT support (existing account)",
+        risk: "Medium", sources: ["KB-08"], owner: "IT Service Desk (technical) — Finance if no account exists",
+        policy_finding: "KB-08 — Finance grants access to the expense tool, not IT. IT can only assist with login or technical issues once an account already exists.",
+        authority_check: "IT may troubleshoot an existing account but cannot create or grant access. If it turns out no account exists, ownership moves to Finance.",
+        reason: "The employee has credentials that are being rejected, which reads as a technical fault on an existing account — inside IT's remit. The ticket carries the boundary so it gets handed to Finance if the account was never provisioned.",
+        next_action: "Confirm the account exists, then troubleshoot the login (password sync, account lock, SSO). If no account was ever provisioned, hand the request to Finance — IT cannot grant access.",
+        status: "In progress — IT technical support"
+      });
+    }
+    return decide({
+      outcome: "RESOLVE", intent: "Expense tool access request", decision: "Redirect to Finance — no IT ticket",
+      risk: "Low", sources: ["KB-08"],
+      policy_finding: "KB-08 — access to the expense management tool is granted by Finance, not IT.",
+      authority_check: "IT has no authority to grant this access, so an IT ticket would sit in the wrong queue.",
+      reason: "Access ownership sits with Finance. Raising an IT ticket would only delay the employee.",
+      next_action: "Request access from Finance through their access process. Once the account exists, IT can help with any login or technical problems.",
+      status: "Redirected to Finance",
+      escalation_path: { trigger: "Account exists but login fails technically", becomes: "Route to IT Service Desk" }
+    });
+  }
+
+  /* ---- Privileged / admin access ---- */
+  if (has("admin access", "administrator access", "admin rights", "root access", "elevated access", "privileged access") ||
+      (has("finance") && has("server") && has("access"))) {
+    const justified = has("because", "approved by", "authorized by", "manager approved", "business justification", "data owner");
+    if (justified) {
+      return decide({
+        outcome: "ESCALATE", intent: "Privileged access request (justification stated)", decision: "Escalate for authorization review",
+        risk: "High", sources: [], owner: "IT Security + system/data owner",
+        policy_finding: "No supplied policy authorizes IT to grant admin access to the finance reporting server. Historical ticket TK-1050 shows such a request rejected for missing business justification — precedent, not policy.",
+        authority_check: "A justification has been offered, but it still needs the system owner and Security to authorize. The agent cannot grant privileged access under any circumstance.",
+        reason: "There's a stated business case, so the request is actionable — but privileged access on a finance system is a high-risk grant that must be authorized by named humans.",
+        next_action: "Escalate to IT Security and the system owner with the stated justification, the exact permissions needed and a defined end date. Prefer time-boxed, least-privilege access over standing admin.",
+        status: "Escalated for authorization"
+      });
+    }
+    return decide({
+      outcome: "CLARIFY", intent: "Privileged access request (unjustified)", decision: "Require justification before anything is raised",
+      risk: "High", sources: [],
+      policy_finding: "No supplied policy grants IT the authority to issue admin access to the finance reporting server. TK-1050 was rejected for exactly this gap.",
+      authority_check: "Urgency is not authorization. Without a business justification and a named approver there is nothing an IT queue can legitimately action.",
+      reason: "Raising an actionable ticket for unjustified privileged access would create pressure to grant it. Policy precedent says the opposite — the gap is closed before, not after, the ticket.",
+      next_action: "Collect the business justification, the specific permissions needed, the duration, and the approving system/data owner. Month-end pressure doesn't change the requirement.",
+      status: "Awaiting justification",
+      clarification: "What specifically do you need to do on the finance reporting server, who owns that system, and have they approved it? Admin rights need a business justification and owner sign-off — read-only or time-boxed access is often enough, and much faster."
+    });
+  }
+
+  /* ---- Genuinely vague ---- */
+  return decide({
+    outcome: "CLARIFY", intent: "Unclear — intent not determinable", decision: "Ask what's affected",
+    risk: "Medium", sources: [],
+    policy_finding: "No policy can be selected — matching one now would mean guessing which system is involved.",
+    authority_check: "No authority check is possible without a defined request.",
+    reason: "The request doesn't identify a system, device or service. Creating a ticket here would just push an unanswerable question into the queue.",
+    next_action: "Ask which system is affected and what the employee is seeing, then re-run the assessment.",
+    status: "Awaiting information",
+    clarification: "Sure — what isn't working? Your laptop, VPN, printer, email, or a specific piece of software? And what happens when you try, including any error message."
+  });
+}
+
+function wfhEquipment(t, has) {
+  const approved = has("approved", "manager signed", "sign-off done", "finance approved", "got approval", "already approved");
+  if (approved) {
+    return decide({
+      outcome: "ROUTE", intent: "WFH equipment — shipping after approval", decision: "Route to IT for shipping",
+      risk: "Low", sources: ["KB-10"], owner: "IT Service Desk (logistics)",
+      policy_finding: "KB-10 — employees remote more than 3 days/week are eligible for a one-time home-office allowance. Manager sign-off and Finance processing come first; IT handles shipping once approved.",
+      authority_check: "Approval is reported as complete, which puts this at the stage where IT is the correct owner.",
+      reason: "The approval gates are behind it, so what remains is the shipping request — actual IT work.",
+      next_action: "Verify the approval record, confirm the delivery address, and raise the equipment shipping request.",
+      status: "Ready for IT fulfilment"
+    });
+  }
+  return decide({
+    outcome: "RESOLVE", intent: "WFH equipment — pre-approval stage", decision: "Explain the approval path — no IT ticket yet",
+    risk: "Medium", sources: ["KB-10"],
+    policy_finding: "KB-10 — one-time home-office equipment allowance (chair, monitor) for employees remote more than 3 days/week. Requires manager sign-off and Finance processing; IT only handles shipping once approved.",
+    authority_check: "IT has no role at this stage. Manager and Finance hold the decision, so an IT ticket would sit idle waiting on them.",
+    reason: "The employee meets the stated eligibility bar, but the request is at the approval stage, not the fulfilment stage. Telling them the path now is faster than parking a ticket.",
+    next_action: "Get manager sign-off for the one-time allowance, then let Finance process it. Come back once approved and IT will arrange shipping.",
+    status: "Employee action — seek approval",
+    escalation_path: { trigger: "Manager and Finance approval obtained", becomes: "Route to IT for equipment shipping" }
+  });
+}
+
+
+/* ---------------- App state ---------------- */
+const state = {
+  audit: [],
+  generated_tickets: [],
+  last_result: null,
+  last_request_id: null,
+  last_text: "",
+  current_page: "Agent"
+};
+
+function escapeHtml(s) {
+  return (s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+/* ---------------- Badge / risk helpers ---------------- */
+function tone(outcomeKey) {
+  return (OUTCOMES[outcomeKey] || OUTCOMES.CLARIFY).tone;
+}
+function outcomeBadge(outcomeKey) {
+  const o = OUTCOMES[outcomeKey] || OUTCOMES.CLARIFY;
+  return `<span class="badge ${o.tone}"><span class="dot"></span>${o.label}${o.ticket ? " \u00b7 ticket" : " \u00b7 no ticket"}</span>`;
+}
+function riskBadge(risk) {
+  const cls = risk === "High" ? "red" : (risk === "Medium" ? "amber" : "green");
+  return `<span class="badge ${cls}"><span class="dot"></span>${escapeHtml(risk)} risk</span>`;
+}
+function decisionBadge(decision, outcomeKey) {
+  const cls = tone(outcomeKey);
+  return `<span class="badge ${cls}"><span class="dot"></span>${escapeHtml(decision)}</span>`;
+}
+function statusBadge(status) {
+  const s = status.toLowerCase();
+  let cls = "neutral";
+  if (s.includes("resolved") || s.includes("ready") || s.includes("approved")) cls = "green";
+  else if (s.includes("escalat") || s.includes("rejected")) cls = "red";
+  else if (s.includes("pending") || s.includes("awaiting") || s.includes("review") || s.includes("required")) cls = "amber";
+  else if (s.includes("active") || s.includes("progress") || s.includes("investigating")) cls = "blue";
+  return `<span class="badge ${cls}"><span class="dot"></span>${escapeHtml(status)}</span>`;
+}
+function typeBadge(t) {
+  return t === "Generated"
+    ? `<span class="badge blue"><span class="dot"></span>Generated</span>`
+    : `<span class="badge neutral"><span class="dot"></span>Supplied</span>`;
+}
+
+const ICONS = {
+  spark: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L15 8 L21.5 9 L17 13.7 L18 20.5 L12 17.2 L6 20.5 L7 13.7 L2.5 9 L9 8 Z"/></svg>`,
+  shield: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L20 6.5 V12 C20 17 16.5 20.4 12 21.5 C7.5 20.4 4 17 4 12 V6.5 Z"/></svg>`,
+  book: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>`,
+  arrow: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`,
+  ticket: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4Z"/></svg>`,
+  flag: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18M5 4h13l-3 4 3 4H5"/></svg>`,
+  clock: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`,
+};
+
+/* ---------------- Navigation ---------------- */
+const navButtons = document.querySelectorAll('#nav button');
+navButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    navButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.current_page = btn.dataset.page;
+    renderPage();
+    window.scrollTo({top:0, behavior:"instant"});
+  });
+});
+
+function pageDivId(page) {
+  return "page-" + page.replace(/\s+/g, "");
+}
+
+function renderPage() {
+  ["Agent","Ticket Queue","Knowledge Base","Audit Trail"].forEach(p => {
+    document.getElementById(pageDivId(p)).style.display = (p === state.current_page) ? "block" : "none";
+  });
+  if (state.current_page === "Agent") renderAgentPage();
+  if (state.current_page === "Ticket Queue") renderTicketQueuePage();
+  if (state.current_page === "Knowledge Base") renderKnowledgeBasePage();
+  if (state.current_page === "Audit Trail") renderAuditTrailPage();
+}
+
+/* ---------------- Agent page ---------------- */
+function renderAgentPage() {
+  const el = document.getElementById("page-Agent");
+
+  const highRisk = state.audit.filter(a => a.risk === "High").length;
+
+  const currentText = document.getElementById("requestText") ? document.getElementById("requestText").value : "";
+
+  el.innerHTML = `
+    <div class="page-head">
+      <div class="eyebrow">AI Decision Agent</div>
+      <h1>How can we help you today?</h1>
+      <p>Describe an employee IT request below — the agent resolves, clarifies, routes or escalates it.</p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-label">${ICONS.spark} Requests analyzed</div>
+        <div class="stat-value">${state.audit.length}</div>
+        <div class="stat-sub">this session</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">${ICONS.ticket} Tickets created</div>
+        <div class="stat-value">${state.generated_tickets.length}</div>
+        <div class="stat-sub">from agent decisions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">${ICONS.flag} High-risk flags</div>
+        <div class="stat-value">${highRisk}</div>
+        <div class="stat-sub">security escalations</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">${ICONS.spark} Try a sample request</div>
+      <div class="panel-sub">Pick one to pre-fill the composer, or write your own below.</div>
+      <div class="chip-scroll" id="chipScroll">
+        ${requests.map(r => `
+          <button class="req-chip" data-id="${r.id}" type="button">
+            <div class="rc-top"><span class="rc-id">${r.id}</span><span class="rc-emp">${escapeHtml(r.employee)}</span></div>
+            <div class="rc-text">${escapeHtml(r.request)}</div>
+          </button>
+        `).join("")}
+      </div>
+
+      <label class="fieldLabel">Employee request</label>
+      <textarea id="requestText" rows="3" placeholder="Example: My VPN stopped working and says my credentials expired.">${escapeHtml(currentText)}</textarea>
+      <div class="composer-foot">
+        <span class="composer-hint" id="composerHint">${state.last_request_id ? `Linked to ${state.last_request_id}.` : "Not linked to a sample request — logged as AD-HOC."}</span>
+        <button class="btn-primary" id="analyzeBtn" type="button">${ICONS.arrow} Analyze request</button>
+      </div>
+    </div>
+
+    <div id="resultArea"></div>
+  `;
+
+  let selectedId = state.last_request_id;
+  const chipScroll = document.getElementById("chipScroll");
+  if (selectedId) {
+    const activeChip = chipScroll.querySelector(`.req-chip[data-id="${selectedId}"]`);
+    if (activeChip) activeChip.classList.add("active");
+  }
+
+  chipScroll.querySelectorAll(".req-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const id = chip.dataset.id;
+      const r = requests.find(r => r.id === id);
+      document.getElementById("requestText").value = r.request;
+      selectedId = id;
+      chipScroll.querySelectorAll(".req-chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      document.getElementById("composerHint").textContent = `Linked to ${id} — ${r.employee}.`;
+    });
+  });
+
+  document.getElementById("requestText").addEventListener("input", () => {
+    if (selectedId) {
+      chipScroll.querySelectorAll(".req-chip").forEach(c => c.classList.remove("active"));
+      selectedId = null;
+      document.getElementById("composerHint").textContent = "Not linked to a sample request — logged as AD-HOC.";
+    }
+  });
+
+  document.getElementById("analyzeBtn").addEventListener("click", () => {
+    const text = document.getElementById("requestText").value;
+    const result = analyze(text);
+    auditEvent(text, result, selectedId);
+    state.last_result = result;
+    state.last_request_id = selectedId;
+    state.last_text = text;
+    renderStatsRowOnly();
+    renderResultArea();
+    document.getElementById("resultArea").scrollIntoView({behavior:"smooth", block:"start"});
+  });
+
+  renderResultArea();
+}
+
+function renderStatsRowOnly() {
+  if (state.current_page !== "Agent") return;
+  const row = document.querySelector("#page-Agent .stat-row");
+  if (!row) return;
+  const highRisk = state.audit.filter(a => a.risk === "High").length;
+  row.innerHTML = `
+    <div class="stat-card"><div class="stat-label">${ICONS.spark} Requests analyzed</div><div class="stat-value">${state.audit.length}</div><div class="stat-sub">this session</div></div>
+    <div class="stat-card"><div class="stat-label">${ICONS.ticket} Tickets created</div><div class="stat-value">${state.generated_tickets.length}</div><div class="stat-sub">from agent decisions</div></div>
+    <div class="stat-card"><div class="stat-label">${ICONS.flag} High-risk flags</div><div class="stat-value">${highRisk}</div><div class="stat-sub">security escalations</div></div>
+  `;
+}
+
+function pipelineHtml(result) {
+  const lanes = ["RESOLVE","CLARIFY","ROUTE","ESCALATE"];
+  return `
+    <div class="pipeline">
+      <div class="pipe-steps">
+        <div class="pipe-step"><div class="ps-k">1 · Understand intent</div><div class="ps-v">${escapeHtml(result.intent)}</div></div>
+        <div class="pipe-arrow">${ICONS.arrow}</div>
+        <div class="pipe-step"><div class="ps-k">2 · Relevant policy</div><div class="ps-v">${result.sources.length ? escapeHtml(result.sources.join(" + ")) : "None matched"}</div></div>
+        <div class="pipe-arrow">${ICONS.arrow}</div>
+        <div class="pipe-step"><div class="ps-k">3 · Authority / risk</div><div class="ps-v">${escapeHtml(result.risk)} risk</div></div>
+      </div>
+      <div class="lane-row">
+        ${lanes.map(k => {
+          const o = OUTCOMES[k];
+          const on = k === result.outcome;
+          return `<div class="lane ${o.tone} ${on ? "on" : ""}">
+            <div class="lane-label">${o.label}</div>
+            <div class="lane-sub">${o.ticket ? "Ticket" : "No ticket"}</div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>`;
+}
+
+function renderResultArea() {
+  const area = document.getElementById("resultArea");
+  if (!area) return;
+  if (!state.last_result) { area.innerHTML = ""; return; }
+  const result = state.last_result;
+  const requestId = state.last_request_id;
+  const cls = tone(result.outcome);
+  const reqInfo = requestId ? requests.find(r => r.id === requestId) : null;
+
+  let sourcesHtml = "";
+  if (result.sources && result.sources.length) {
+    sourcesHtml = `<div class="source-grid">` + result.sources.map((sid, idx) => {
+      const p = policies.find(x => x.id === sid);
+      if (!p) return "";
+      return `<details class="source-card" ${idx===0 ? "open" : ""}>
+        <summary><span class="sc-id">${p.id}</span><span class="sc-title">${escapeHtml(p.title)}</span><span class="chev">${ICONS.arrow}</span></summary>
+        <div class="sc-content">${escapeHtml(p.content)}</div>
+      </details>`;
+    }).join("") + `</div>`;
+  } else {
+    sourcesHtml = `<div class="no-source">No supplied policy matched this request — the agent flags that gap rather than guessing a source.</div>`;
+  }
+
+  let clarificationHtml = "";
+  if (result.clarification) {
+    clarificationHtml = `<div class="block"><div class="block-label">❓ Question back to the employee</div><div class="clarify-box">${escapeHtml(result.clarification)}</div></div>`;
+  }
+
+  const makeTicket = (label, owner) => ({
+    ticket_id: `VIT-${1000 + state.generated_tickets.length + 1}`,
+    request_id: requestId || "AD-HOC",
+    created_at: new Date().toISOString().slice(0,19).replace("T"," "),
+    intent: result.intent,
+    outcome: result.outcome,
+    decision: label || result.decision,
+    risk: result.risk,
+    status: result.status,
+    owner: owner || result.owner,
+    sources: result.sources,
+    next_action: result.next_action
+  });
+
+  let ticketHtml = "";
+  let pendingTicket = null;
+
+  if (result.ticket_required) {
+    pendingTicket = makeTicket();
+    ticketHtml = `
+      <div class="block">
+        <div class="block-label">${ICONS.ticket} Structured ticket</div>
+        <div class="ticket-stub">
+          <div class="ts-head">
+            <div class="ts-title">${ICONS.ticket} Ready to log — ${OUTCOMES[result.outcome].label.toLowerCase()} outcome</div>
+            <div class="ts-id mono">${pendingTicket.ticket_id}</div>
+          </div>
+          <div class="ticket-fields">
+            <div class="tf"><div class="k">Request</div><div class="v mono">${escapeHtml(pendingTicket.request_id)}</div></div>
+            <div class="tf"><div class="k">Created</div><div class="v">${escapeHtml(pendingTicket.created_at)}</div></div>
+            <div class="tf"><div class="k">Intent</div><div class="v">${escapeHtml(pendingTicket.intent)}</div></div>
+            <div class="tf"><div class="k">Risk</div><div class="v">${riskBadge(pendingTicket.risk)}</div></div>
+            <div class="tf" style="grid-column:1/-1;"><div class="k">Owner</div><div class="v">${escapeHtml(pendingTicket.owner)}</div></div>
+            <div class="tf" style="grid-column:1/-1;"><div class="k">Next action</div><div class="v">${escapeHtml(pendingTicket.next_action)}</div></div>
+          </div>
+          <button class="btn-secondary" id="createTicketBtn" type="button">${ICONS.ticket} Create ticket</button>
+        </div>
+      </div>`;
+  } else if (result.escalation_path) {
+    pendingTicket = makeTicket(result.escalation_path.becomes, result.escalation_path.becomes);
+    ticketHtml = `
+      <div class="block">
+        <div class="block-label">${ICONS.clock} Conditional escalation</div>
+        <div class="ticket-stub conditional">
+          <div class="ts-head">
+            <div class="ts-title">${ICONS.clock} No ticket now — this is what would change that</div>
+          </div>
+          <div class="ticket-fields">
+            <div class="tf" style="grid-column:1/-1;"><div class="k">If</div><div class="v">${escapeHtml(result.escalation_path.trigger)}</div></div>
+            <div class="tf" style="grid-column:1/-1;"><div class="k">Then</div><div class="v">${escapeHtml(result.escalation_path.becomes)}</div></div>
+          </div>
+          <button class="btn-secondary" id="createTicketBtn" type="button">${ICONS.arrow} That happened — escalate and create ticket</button>
+        </div>
+      </div>`;
+  } else {
+    ticketHtml = `
+      <div class="block">
+        <div class="block-label">${ICONS.ticket} Ticket</div>
+        <div class="no-ticket-box">
+          <strong>No ticket created.</strong> ${escapeHtml(OUTCOMES[result.outcome].blurb)}
+        </div>
+      </div>`;
+  }
+
+  if (pendingTicket) {
+    setTimeout(() => {
+      const btn = document.getElementById("createTicketBtn");
+      if (btn) btn.addEventListener("click", () => {
+        state.generated_tickets.push(pendingTicket);
+        showToast(`Created ${pendingTicket.ticket_id}`);
+        btn.disabled = true;
+        btn.textContent = "Ticket created";
+        renderStatsRowOnly();
+      });
+    }, 0);
+  }
+
+  area.innerHTML = `
+    <div class="decision-panel ${cls}">
+      <div class="decision-head">
+        <div class="dh-left">
+          <div class="ai-tag">${ICONS.spark} Agent outcome</div>
+          <h3>${OUTCOMES[result.outcome].label} — ${escapeHtml(result.decision)}</h3>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+          ${outcomeBadge(result.outcome)}
+          ${riskBadge(result.risk)}
+          ${reqInfo ? `<span class="composer-hint">${reqInfo.id} · ${escapeHtml(reqInfo.employee)}</span>` : `<span class="composer-hint">AD-HOC request</span>`}
+        </div>
+      </div>
+      <div class="decision-body">
+        <div class="metrics-grid">
+          <div class="metric"><div class="mlabel">Intent</div><div class="mvalue">${escapeHtml(result.intent)}</div></div>
+          <div class="metric"><div class="mlabel">Status</div><div class="mvalue">${statusBadge(result.status)}</div></div>
+          <div class="metric"><div class="mlabel">Ticket required</div><div class="mvalue">${result.ticket_required ? "Yes" : (result.escalation_path ? "Conditional" : "No")}</div></div>
+        </div>
+
+        <div class="block">
+          <div class="block-label">Decision reasoning</div>
+          <div class="reasoning-box">${escapeHtml(result.policy_finding)}</div>
+        </div>
+
+        ${clarificationHtml}
+
+        <div class="block">
+          <div class="block-label">${ICONS.arrow} Next action</div>
+          <div class="next-action-box">${escapeHtml(result.next_action)}</div>
+        </div>
+
+        <div class="block">
+          <div class="block-label">${ICONS.book} Source policy</div>
+          ${sourcesHtml}
+        </div>
+
+        ${ticketHtml}
+
+        <hr class="divider">
+        <div class="block" style="margin-bottom:0;">
+          <div class="block-label">Why this decision?</div>
+          <div class="composer-hint">${escapeHtml(result.reason)} The agent separates language understanding from policy-grounded decision logic. Historical tickets are context only and never override written policy.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:20px;">
+      <div class="panel-title">Agent operating principle</div>
+      <div class="panel-sub">Every response falls into one of three lanes.</div>
+      <div class="principle-cols">
+        <div class="principle blue"><div class="p-head">${ICONS.arrow} Resolve</div>Handle simple requests directly using documented policy — no ticket needed.</div>
+        <div class="principle amber"><div class="p-head">${ICONS.clock} Route</div>Require manager approval, another team's ownership, or more information first.</div>
+        <div class="principle red"><div class="p-head">${ICONS.shield} Escalate</div>Protect against risky, privileged, or unsupported actions by sending to a human.</div>
+      </div>
+    </div>
+  `;
+}
+
+
+function auditEvent(text, result, requestId) {
+  state.audit.unshift({
+    timestamp: new Date().toISOString().slice(0,19).replace("T"," "),
+    request_id: requestId || "AD-HOC",
+    request: text,
+    intent: result.intent,
+    decision: result.decision,
+    outcome: result.outcome,
+    ticket_required: result.ticket_required,
+    risk: result.risk,
+    sources: (result.sources && result.sources.length) ? result.sources.join(", ") : "None",
+    status: result.status
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.innerHTML = `${ICONS.ticket} ${escapeHtml(msg)}`;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2400);
+}
+
+/* ---------------- Ticket Queue page ---------------- */
+function renderTicketQueuePage() {
+  const el = document.getElementById("page-TicketQueue");
+  const rows = [];
+  tickets.forEach(t => rows.push({ID:t.id, Employee:t.employee, Issue:t.issue, Status:t.status, Type:"Supplied"}));
+  state.generated_tickets.forEach(t => rows.push({ID:t.ticket_id, Employee:"Prototype user", Issue:t.intent, Status:t.status, Type:"Generated"}));
+
+  const active = rows.filter(r => r.Status.toLowerCase().includes("active")).length;
+  const closed = rows.filter(r => r.Status.toLowerCase().includes("closed")).length;
+
+  el.innerHTML = `
+    <div class="page-head">
+      <div class="eyebrow">Service Desk</div>
+      <h1>Ticket queue</h1>
+      <p>Supplied historical and active tickets, plus anything created from an agent decision this session.</p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-label">${ICONS.ticket} Total tickets</div><div class="stat-value">${rows.length}</div></div>
+      <div class="stat-card"><div class="stat-label">${ICONS.clock} Active</div><div class="stat-value">${active}</div></div>
+      <div class="stat-card"><div class="stat-label">${ICONS.shield} Closed</div><div class="stat-value">${closed}</div></div>
+      <div class="stat-card"><div class="stat-label">${ICONS.spark} Generated this session</div><div class="stat-value">${state.generated_tickets.length}</div></div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Ticket</th><th>Employee</th><th>Issue</th><th>Status</th><th>Source</th></tr></thead>
+        <tbody>
+          ${rows.map(r => `<tr>
+            <td class="id-cell">${escapeHtml(r.ID)}</td>
+            <td>${escapeHtml(r.Employee)}</td>
+            <td>${escapeHtml(r.Issue)}</td>
+            <td>${statusBadge(r.Status)}</td>
+            <td>${typeBadge(r.Type)}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+/* ---------------- Knowledge Base page ---------------- */
+function renderKnowledgeBasePage() {
+  const el = document.getElementById("page-KnowledgeBase");
+  el.innerHTML = `
+    <div class="page-head">
+      <div class="eyebrow">Policy pack</div>
+      <h1>Knowledge base</h1>
+      <p>The complete set of policies the agent is allowed to reason from — ${policies.length} documents, nothing outside this pack.</p>
+    </div>
+    <div class="panel" style="padding-bottom:18px;">
+      <label class="fieldLabel" style="margin-top:0;">Search policies</label>
+      <input type="text" id="kbSearch" placeholder="Search by policy ID, title, or content…">
+    </div>
+    <div class="kb-grid" id="kbResults"></div>
+  `;
+  const renderResults = (query) => {
+    const q = (query || "").toLowerCase();
+    const results = policies.filter(p => !q || (p.id + " " + p.title + " " + p.content).toLowerCase().includes(q));
+    document.getElementById("kbResults").innerHTML = results.map(p => `
+      <div class="kb-card">
+        <span class="kb-id">${p.id}</span>
+        <h4>${escapeHtml(p.title)}</h4>
+        <p>${escapeHtml(p.content)}</p>
+      </div>
+    `).join("") || `<div class="table-empty" style="grid-column:1/-1;">No policies match “${escapeHtml(query)}”.</div>`;
+  };
+  renderResults("");
+  document.getElementById("kbSearch").addEventListener("input", (e) => renderResults(e.target.value));
+}
+
+/* ---------------- Audit Trail page ---------------- */
+function renderAuditTrailPage() {
+  const el = document.getElementById("page-AuditTrail");
+  const escalations = state.audit.filter(a => a.outcome === "ESCALATE").length;
+  const clarifications = state.audit.filter(a => a.outcome === "CLARIFY").length;
+  const resolved = state.audit.filter(a => a.outcome === "RESOLVE").length;
+
+  let body;
+  if (state.audit.length) {
+    body = `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Time</th><th>Request</th><th>Employee text</th><th>Intent</th><th>Outcome</th><th>Ticket</th><th>Sources</th><th>Status</th></tr></thead>
+          <tbody>
+            ${state.audit.map(a => `<tr>
+              <td class="mono">${escapeHtml(a.timestamp)}</td>
+              <td class="id-cell">${escapeHtml(a.request_id)}</td>
+              <td style="max-width:220px;">${escapeHtml(a.request)}</td>
+              <td>${escapeHtml(a.intent)}</td>
+              <td>${decisionBadge(OUTCOMES[a.outcome].label + " \u2014 " + a.decision, a.outcome)}</td>
+              <td>${a.ticket_required ? "Yes" : "No"}</td>
+              <td class="mono">${escapeHtml(a.sources)}</td>
+              <td>${statusBadge(a.status)}</td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>`;
+  } else {
+    body = `<div class="table-wrap"><div class="table-empty">No interactions recorded yet. Process a request from the Agent page to populate this log.</div></div>`;
+  }
+
+  el.innerHTML = `
+    <div class="page-head">
+      <div class="eyebrow">Governance</div>
+      <h1>Audit trail</h1>
+      <p>Every decision the agent made this session, in order, with the policy sources it relied on.</p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-label">${ICONS.spark} Interactions</div><div class="stat-value">${state.audit.length}</div></div>
+      <div class="stat-card"><div class="stat-label">${ICONS.shield} Security escalations</div><div class="stat-value">${escalations}</div></div>
+      <div class="stat-card"><div class="stat-label">${ICONS.clock} Clarifications asked</div><div class="stat-value">${clarifications}</div></div>
+      <div class="stat-card"><div class="stat-label">${ICONS.arrow} Resolved without a ticket</div><div class="stat-value">${resolved}</div></div>
+    </div>
+
+    ${body}
+  `;
+}
+
+/* ---------------- Init ---------------- */
+renderPage();
+</script>
+</body>
+</html>
