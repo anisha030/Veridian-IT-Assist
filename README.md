@@ -121,7 +121,6 @@ Help       Information   Action         Action
 
 ```
  
----
 ## Author
 
 **Anisha Boken**
