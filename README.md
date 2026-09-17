@@ -1,6 +1,7 @@
 # 🖥️ Veridian IT Assist — Internal IT Support Agent
 
-**Internal IT Support Agent**
+**Internal IT Support Agent**  
+**Developed by Anisha Boken**
 
 An internal IT support agent designed to classify employee requests, provide policy-based guidance, and create or route tickets when required.
 
@@ -19,7 +20,7 @@ The agent classifies requests into four possible outcomes:
 
 The system also determines whether a **ticket is required**, preventing unnecessary tickets for requests that can be resolved directly, need clarification, or have a separate escalation path.
 
-> **Design Principle:**
+> **Design Principle:**  
 > **Resolve what is safe. Route what requires authority. Escalate what is risky. Ask when information is missing.**
 
 ---
@@ -52,11 +53,13 @@ The system also determines whether a **ticket is required**, preventing unnecess
 
 ### Development Tools
 
-- ChatGPT — development assistance, debugging, logic review and documentation
-- Python — decision-rule validation and testing
-- Browser Developer Tools — HTML/JavaScript testing and debugging
+- **ChatGPT** — development assistance, debugging, logic review and documentation
+- **Claude** — development assistance, code review, debugging and documentation
+- **Python** — decision-rule validation and testing
+- **Browser Developer Tools** — HTML/JavaScript testing and debugging
 
 > The final web prototype does **not require an external AI API or LLM** to run.
+>
 > The runtime decision engine uses deterministic, policy-grounded rules.
 
 ---
@@ -109,13 +112,13 @@ Policy / Decision Engine
 Resolve    Clarify      Route        Escalate          Security
 │            │            │              │                  │
 ▼            ▼            ▼              ▼                  ▼
-Direct     Ask for      Human/IT       Specialist       Report to
-Help       Information   Action         Action           Security
-             │            │              │                  │
-             │            └──────┬───────┘                  │
-             │                   ▼                          │
-             │              Create Ticket                   │
-             │                   │                          │
-             └───────────────────┴──────────────┐           │
-                                                 ▼           │
-                                            Audit Trail ◄────┘
+Direct     Ask for     Human/IT      Specialist        Report to
+Help       Information  Action         Action           Security
+│            │            │              │
+└────────────┴────────────┴──────────────┘
+                     │
+                     ▼
+                Create Ticket
+                     │
+                     ▼
+                Audit Trail
